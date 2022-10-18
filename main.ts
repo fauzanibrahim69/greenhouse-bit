@@ -1,26 +1,23 @@
 let soil = 0
 ESP8266ThingSpeak.connectWifi(
-SerialPin.P13,
-SerialPin.P14,
+SerialPin.P15,
+SerialPin.P16,
 BaudRate.BaudRate115200,
-"your_ssid",
-"your_pw"
+"esp2866",
+"makecode"
 )
-basic.forever(function () {
-    soil = Math.idiv(pins.analogReadPin(AnalogPin.P0), 10)
-    if (soil <= 50) {
-        music.playMelody("C5 - - - - - - - ", 120)
-        if (soil == 50) {
-            music.stopAllSounds()
-        }
-    } else {
-        music.stopAllSounds()
-    }
-})
+ESP8266ThingSpeak.wait(5000)
+if (ESP8266ThingSpeak.isWifiConnected()) {
+    basic.showIcon(IconNames.Happy)
+    basic.clearScreen()
+} else {
+    basic.showIcon(IconNames.Sad)
+    basic.clearScreen()
+}
 basic.forever(function () {
     ESP8266ThingSpeak.connectThingSpeak(
     "api.thingspeak.com",
-    "your_write_api_key",
+    "2NZSI5A0HMZN7WJR",
     dht11_dht22.readData(dataType.temperature),
     dht11_dht22.readData(dataType.humidity),
     soil,
@@ -30,4 +27,34 @@ basic.forever(function () {
     0,
     0
     )
+})
+basic.forever(function () {
+    dht11_dht22.queryData(
+    DHTtype.DHT11,
+    DigitalPin.P2,
+    true,
+    false,
+    true
+    )
+})
+basic.forever(function () {
+    if (input.lightLevel() <= 100) {
+        pins.digitalWritePin(DigitalPin.P3, 1)
+        if (input.lightLevel() > 100) {
+            pins.digitalWritePin(DigitalPin.P3, 0)
+        }
+    } else {
+        pins.digitalWritePin(DigitalPin.P3, 0)
+    }
+})
+basic.forever(function () {
+    soil = Math.idiv(pins.analogReadPin(AnalogPin.P4), 10)
+    if (soil <= 50) {
+        music.playMelody("- - C5 - C5 - - - ", 500)
+        if (soil > 50) {
+            music.stopAllSounds()
+        }
+    } else {
+        music.stopAllSounds()
+    }
 })
